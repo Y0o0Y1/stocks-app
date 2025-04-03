@@ -1,5 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
+import nasdaqLogo from '../assets/nasdaq-logo.png';
 
 const fadeIn = keyframes`
   from {
@@ -55,7 +56,7 @@ const SplashScreen = ({ developerName }: SplashScreenProps) => {
   return (
     <SplashContainer>
       <Logo
-        src="/src/assets/nasdaq-logo.png"
+        src={nasdaqLogo}
         alt="Nasdaq Logo"
       />
       <DeveloperName variant="body1">
