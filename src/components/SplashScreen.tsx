@@ -1,5 +1,27 @@
 import { Box, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { styled, keyframes } from '@mui/material/styles';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
+const fadeInUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 const SplashContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -14,12 +36,15 @@ const Logo = styled('img')({
   width: '200px',
   height: 'auto',
   marginBottom: '2rem',
+  animation: `${fadeIn} 2s ease-out forwards`,
 });
 
 const DeveloperName = styled(Typography)(({ theme }) => ({
   position: 'absolute',
   bottom: '2rem',
   color: theme.palette.text.secondary,
+  animation: `${fadeInUp} 800ms ease-out 1.5s forwards`,
+  opacity: 0,
 }));
 
 interface SplashScreenProps {
@@ -30,12 +55,8 @@ const SplashScreen = ({ developerName }: SplashScreenProps) => {
   return (
     <SplashContainer>
       <Logo
-        src="/nasdaq-logo.png"
+        src="/src/assets/nasdaq-logo.png"
         alt="Nasdaq Logo"
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Nasdaq_Logo.svg/1200px-Nasdaq_Logo.svg.png';
-        }}
       />
       <DeveloperName variant="body1">
         Developed by {developerName}

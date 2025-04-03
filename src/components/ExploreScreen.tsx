@@ -1,25 +1,28 @@
 import {
   Alert,
   Box,
-  Grid,
+  Grid as MuiGrid,
   Paper,
   Typography,
+  Button,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useCallback, useEffect, useState } from 'react';
-import { StockQueryParams } from '../app/api/DTO/stock.DTO';
+import { StockDTO, StockQueryParams } from '../app/api/DTO/stock.DTO';
 import { useGetStocksQuery } from '../app/api/services/stocksApi';
 import Navbar from './Navbar';
 
 const MainContent = styled(Box)(({ theme }) => ({
   paddingTop: theme.spacing(2),
+  height: '100%',
+  overflow: 'hidden',
 }));
 
 const Container = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
   margin: '0 auto',
-    paddingBottom: theme.spacing(2),
-
+  paddingBottom: theme.spacing(2),
+  height: '100%',
 }));
 
 const StockCard = styled(Paper)(({ theme }) => ({
@@ -53,38 +56,70 @@ const StockName = styled(Typography)({
 });
 
 const GridContainer = styled(Box)({
+  height: 'calc(100vh - 140px)',
+  overflowY: 'auto',
   paddingRight: '8px',
+  paddingBottom: '48px',
+  scrollbarWidth: 'none',
+  msOverflowStyle: 'none',
   '&::-webkit-scrollbar': {
-    width: '8px',
-  },
-  '&::-webkit-scrollbar-track': {
-    background: '#f1f1f1',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    background: '#888',
-    borderRadius: '4px',
-  },
-  '&::-webkit-scrollbar-thumb:hover': {
-    background: '#555',
+    display: 'none',
   },
 });
 
+interface ApiError {
+  status: number;
+  data?: {
+    retry_after?: number;
+  };
+}
+
+const isApiError = (error: unknown): error is ApiError => {
+  return typeof error === 'object' && error !== null && 'status' in error;
+};
 
 const ExploreScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [queryParams, setQueryParams] = useState<StockQueryParams>({
     limit: 48,
   });
+  const [isRateLimited, setIsRateLimited] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   const { data, error, isLoading, isFetching } = useGetStocksQuery(queryParams);
 
+  useEffect(() => {
+    if (error && isApiError(error) && error.status === 429) {
+      setIsRateLimited(true);
+      const retryAfterSeconds = error.data?.retry_after || 60;
+      setCountdown(retryAfterSeconds);
+      
+      const timer = setTimeout(() => {
+        setIsRateLimited(false);
+        setCountdown(null);
+      }, retryAfterSeconds * 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (countdown !== null && countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => (prev !== null ? prev - 1 : null));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
+
   const debouncedSearch = useCallback((term: string) => {
+    if (isRateLimited) return;
     setQueryParams((prev) => ({
       ...prev,
       search: term || undefined,
-      cursor: undefined, 
+      cursor: undefined,
     }));
-  }, []);
+  }, [isRateLimited]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -96,16 +131,22 @@ const ExploreScreen = () => {
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
-    if (
-      scrollHeight - scrollTop === clientHeight &&
-      !isFetching &&
-      data?.next_url
-    ) {
-      const cursor = data.next_url.split('cursor=')[1];
-      setQueryParams((prev) => ({
-        ...prev,
-        cursor,
-      }));
+    const isNearBottom = scrollHeight - scrollTop <= clientHeight + 100;
+    
+    if (isNearBottom && !isFetching && data?.next_url) {
+      try {
+        const url = new URL(data.next_url);
+        const cursor = url.searchParams.get('cursor');
+        
+        if (cursor) {
+          setQueryParams((prev) => ({
+            ...prev,
+            cursor,
+          }));
+        }
+      } catch (error) {
+        console.error('Error parsing next_url:', error);
+      }
     }
   };
 
@@ -114,19 +155,32 @@ const ExploreScreen = () => {
   };
 
   return (
-    <Box sx={{ height: '100%' }}>
+    <Box sx={{ height: '100vh', overflow: 'hidden' }}>
       <Navbar searchTerm={searchTerm} onSearchChange={handleSearchChange} />
       <MainContent>
         <Container>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error instanceof Error ? error.message : 'An error occurred'}
+            <Alert 
+              severity={isRateLimited ? "warning" : "error"} 
+              sx={{ mb: 2 }}
+              action={
+                isRateLimited && countdown !== null && (
+                  <Button color="inherit" size="small" disabled>
+                    {countdown}s
+                  </Button>
+                )
+              }
+            >
+              {isRateLimited 
+                ? `API rate limit reached. Please wait ${countdown} seconds before trying again.`
+                : error instanceof Error ? error.message : 'An error occurred'
+              }
             </Alert>
           )}
           <GridContainer onScroll={handleScroll}>
-            <Grid container spacing={4}>
-              {data?.results.map((stock) => (
-                <Grid key={stock.ticker} item xs={6} sm={4} md={2}>
+            <MuiGrid container spacing={4} alignItems="center" justifyContent="center">
+              {data?.results.map((stock: StockDTO) => (
+                <MuiGrid key={stock.ticker + stock.name + stock.last_updated_utc} item xs={8} sm={4} md={3} lg={2}>
                   <StockCard>
                     <StockSymbol>
                       {stock.ticker}
@@ -135,9 +189,9 @@ const ExploreScreen = () => {
                       {stock.name}
                     </StockName>
                   </StockCard>
-                </Grid>
+                </MuiGrid>
               ))}
-            </Grid>
+            </MuiGrid>
 
             {!isLoading && !isFetching && data?.results.length === 0 && (
               <Typography align="center" color="textSecondary" sx={{ mt: 2 }}>
