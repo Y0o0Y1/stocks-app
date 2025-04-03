@@ -1,54 +1,97 @@
-# React + TypeScript + Vite
+# Stock Market App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React web application that displays stocks listed in the Nasdaq exchange. The app allows users to browse stocks, search for specific stocks, and view detailed information.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Splash screen with Nasdaq logo
+- Explore screen with stock listings
+- Infinite scroll for loading more stocks
+- Real-time stock search
+- Responsive design
+- API response caching
+- Error handling
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (v18 or higher)
+- npm or yarn
+- Polygon.io API key
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+3. Create a `.env` file in the root directory and add your Polygon.io API key:
+   ```
+   VITE_POLYGON_API_KEY=your_api_key_here
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+## Testing
+
+Run the test suite:
+```bash
+npm test
+# or
+yarn test
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Production Build
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+To create a production build:
+```bash
+npm run build
+# or
+yarn build
 ```
+
+## Tech Stack
+
+- React
+- TypeScript
+- Material-UI
+- Axios
+- React Router
+- Vite
+
+## Project Structure
+
+```
+src/
+  ├── components/     # Reusable UI components
+  ├── pages/         # Page components
+  ├── services/      # API services
+  ├── hooks/         # Custom hooks
+  ├── utils/         # Utility functions
+  ├── types/         # TypeScript type definitions
+  ├── store/         # State management
+  └── assets/        # Static assets
+```
+
+## API Integration
+
+This app uses the Polygon.io Stocks API for fetching stock data. The main endpoint used is:
+- GET /v3/reference/tickers - For fetching stock list (ticker, name)
+
+## Error Handling
+
+The app includes comprehensive error handling for:
+- API rate limiting
+- Network errors
+- Invalid responses
+- Search errors
+
+## Caching
+
+API responses are cached to prevent redundant requests and improve performance.
