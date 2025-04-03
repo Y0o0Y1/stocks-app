@@ -12,16 +12,9 @@ export const stocksApi = createApi({
     getStocks: builder.query<StocksResponse, StockQueryParams>({
       query: (params) => ({
         url: '/reference/tickers',
-        params: {
-          ...params,
-          market: 'stocks',
-          exchange: 'XNAS', // Nasdaq exchange
-          limit: params.limit || 20,
-          active: true,
-        },
+        params
       }),
       serializeQueryArgs: ({ queryArgs }) => {
-        // Only use search param for cache key
         return { search: queryArgs.search };
       },
       merge: (currentCache, newItems) => {
@@ -32,7 +25,6 @@ export const stocksApi = createApi({
         };
       },
       forceRefetch: ({ currentArg, previousArg }) => {
-        // Only refetch if cursor has changed
         return currentArg?.cursor !== previousArg?.cursor;
       },
       providesTags: (result) =>

@@ -194,7 +194,7 @@ const ExploreScreen = () => {
             </MuiGrid>
 
             {!isLoading && !isFetching && data?.results.length === 0 && (
-              <Typography align="center" color="textSecondary" sx={{ mt: 2 }}>
+              <Typography align="center" color="textSecondary" sx={{ mt: 44 }}>
                 No stocks found
               </Typography>
             )}
