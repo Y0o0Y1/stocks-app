@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Box, TextField } from '@mui/material';
+import { AppBar, Toolbar, Box, TextField, useTheme, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import nasdaqLogo from '../assets/nasdaq-logo.png';
 
@@ -7,20 +7,28 @@ const StyledAppBar = styled(AppBar)({
   boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
 });
 
-const LogoContainer = styled(Box)({
+const LogoContainer = styled(Box)(({ theme }) => ({
   height: '40px',
   display: 'flex',
   alignItems: 'center',
-  marginRight: '32px',
-});
+  marginRight: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    height: '30px',
+    marginRight: theme.spacing(1),
+  },
+}));
 
 const Logo = styled('img')({
   height: '100%',
   objectFit: 'contain',
 });
 
-const SearchBox = styled(TextField)({
-  width: '400px',
+const SearchBox = styled(TextField)(({ theme }) => ({
+  width: '100%',
+  maxWidth: '400px',
+  [theme.breakpoints.down('sm')]: {
+    maxWidth: '200px',
+  },
   '& .MuiOutlinedInput-root': {
     backgroundColor: '#f5f5f5',
     '&:hover': {
@@ -36,7 +44,7 @@ const SearchBox = styled(TextField)({
       borderColor: '#0066B2',
     },
   },
-});
+}));
 
 interface NavbarProps {
   searchTerm: string;
@@ -44,15 +52,29 @@ interface NavbarProps {
 }
 
 const Navbar = ({ searchTerm, onSearchChange }: NavbarProps) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <StyledAppBar position="sticky">
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Toolbar sx={{ 
+        justifyContent: 'space-between',
+        padding: theme.spacing(1, 2),
+        [theme.breakpoints.down('sm')]: {
+          padding: theme.spacing(1),
+        }
+      }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center',
+          width: '100%',
+          gap: theme.spacing(1)
+        }}>
           <LogoContainer>
             <Logo src={nasdaqLogo} alt="Nasdaq Logo" />
           </LogoContainer>
           <SearchBox
-            placeholder="Search by ticker or company name"
+            placeholder={isMobile ? "Search..." : "Search by ticker or company name"}
             variant="outlined"
             size="small"
             value={searchTerm}

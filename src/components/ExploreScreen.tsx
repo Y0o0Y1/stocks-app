@@ -28,7 +28,6 @@ const Container = styled(Box)(({ theme }) => ({
 const StockCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   textAlign: 'left',
-  maxWidth: '300px',
   cursor: 'pointer',
   transition: 'transform 0.2s ease-in-out',
   height: '100%',
@@ -42,13 +41,13 @@ const StockCard = styled(Paper)(({ theme }) => ({
 }));
 
 const StockSymbol = styled(Typography)({
-  fontWeight: 'bold',
-  fontSize: '1.2rem',
+  variant: 'h6',
+  fontWeight: 700,
   marginBottom: '0.5rem',
 });
 
 const StockName = styled(Typography)({
-  fontSize: '0.9rem',
+  variant: 'subtitle2',
   color: 'text.secondary',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -93,12 +92,12 @@ const ExploreScreen = () => {
       setIsRateLimited(true);
       const retryAfterSeconds = error.data?.retry_after || 60;
       setCountdown(retryAfterSeconds);
-      
+
       const timer = setTimeout(() => {
         setIsRateLimited(false);
         setCountdown(null);
       }, retryAfterSeconds * 1000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [error]);
@@ -132,12 +131,12 @@ const ExploreScreen = () => {
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
     const isNearBottom = scrollHeight - scrollTop <= clientHeight + 100;
-    
+
     if (isNearBottom && !isFetching && data?.next_url) {
       try {
         const url = new URL(data.next_url);
         const cursor = url.searchParams.get('cursor');
-        
+
         if (cursor) {
           setQueryParams((prev) => ({
             ...prev,
@@ -160,8 +159,8 @@ const ExploreScreen = () => {
       <MainContent>
         <Container>
           {error && (
-            <Alert 
-              severity={isRateLimited ? "warning" : "error"} 
+            <Alert
+              severity={isRateLimited ? "warning" : "error"}
               sx={{ mb: 2 }}
               action={
                 isRateLimited && countdown !== null && (
@@ -171,7 +170,7 @@ const ExploreScreen = () => {
                 )
               }
             >
-              {isRateLimited 
+              {isRateLimited
                 ? `API rate limit reached. Please wait ${countdown} seconds before trying again.`
                 : error instanceof Error ? error.message : 'An error occurred'
               }
@@ -180,7 +179,15 @@ const ExploreScreen = () => {
           <GridContainer onScroll={handleScroll}>
             <MuiGrid container spacing={4} alignItems="center" justifyContent="center">
               {data?.results.map((stock: StockDTO) => (
-                <MuiGrid key={stock.ticker + stock.name + stock.last_updated_utc} item xs={8} sm={4} md={3} lg={2}>
+                <MuiGrid
+                  key={stock.ticker + stock.name + stock.last_updated_utc}
+                  item
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  xl={2}
+                >
                   <StockCard>
                     <StockSymbol>
                       {stock.ticker}
