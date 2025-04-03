@@ -1,14 +1,16 @@
-# Stock Trading Application
+# Nasdaq Stock Market App
 
-A modern, responsive stock trading application built with React, TypeScript, and Material-UI. This application provides real-time stock market data and trading capabilities.
+A responsive web application that displays stocks listed in the Nasdaq exchange. The app allows users to browse stocks, search for specific stocks, and view detailed information.
 
 ## Features
 
-- Real-time stock market data
-- Interactive stock charts
-- Portfolio management
-- User authentication
+- Splash screen with Nasdaq logo
+- Explore screen with stock listings
+- Infinite scroll for loading more stocks
+- Real-time stock search
 - Responsive design
+- API response caching
+- Error handling
 
 ## Tech Stack
 
@@ -20,14 +22,14 @@ A modern, responsive stock trading application built with React, TypeScript, and
 - **HTTP Client**: Axios
 - **Styling**: Emotion
 - **Build Tool**: Vite
-- **Testing**: Jest, React Testing Library
 
 ## Prerequisites
 
 - Node.js (v18 or higher)
 - npm or yarn
+- Polygon.io API key
 
-## Installation
+## Setup
 
 1. Clone the repository:
 ```bash
@@ -40,9 +42,9 @@ cd stock-app
 yarn install
 ```
 
-3. Create a `.env` file in the root directory and add your environment variables:
-```bash
-cp .env.example .env
+3. Create a `.env` file in the root directory and add your Polygon.io API key:
+```
+VITE_POLYGON_API_KEY=your_api_key_here
 ```
 
 4. Start the development server:
@@ -57,8 +59,6 @@ The application will be available at `http://localhost:5173`
 - `yarn dev` - Start development server
 - `yarn build` - Build for production
 - `yarn preview` - Preview production build
-- `yarn test` - Run tests
-- `yarn test:watch` - Run tests in watch mode
 - `yarn lint` - Run ESLint
 
 ## Project Structure
@@ -73,21 +73,42 @@ src/
 └── index.css      # Global styles
 ```
 
+## API Integration
+
+This app uses the Polygon.io Stocks API for fetching stock data. The main endpoint used is:
+- GET /v3/reference/tickers - For fetching stock list (ticker, name)
+
 ## Network Call Caching
 
-The application implements caching for network calls to optimize performance and reduce API requests:
+The application uses RTK Query for efficient data fetching and caching:
 
-1. **API Response Caching**
-   - Axios interceptors are used to cache API responses
-   - Cache duration is configurable per endpoint
-   - Automatic cache invalidation on data updates
-   - Cache is stored in memory for fast access
-   - TTL (Time To Live) is implemented for cached responses
+1. **Automatic Caching**
+   - RTK Query automatically caches API responses
+   - Cache is managed by Redux store
+   - Data is normalized and deduplicated automatically
 
-2. **Request Deduplication**
-   - Identical requests made within a short time window are deduplicated
-   - Prevents multiple API calls for the same data
-   - Improves application performance and reduces server load
+2. **Cache Invalidation**
+   - Automatic cache invalidation based on endpoint configuration
+   - Manual cache invalidation through tags
+   - Optimistic updates for immediate UI feedback
+
+3. **Cache Configuration**
+   - Configurable cache duration per endpoint
+   - Stale-while-revalidate strategy
+   - Automatic background refetching of stale data
+
+4. **Request Deduplication**
+   - Identical requests are deduplicated automatically
+   - Shared cache between components
+   - Prevents redundant API calls
+
+## Error Handling
+
+The app includes comprehensive error handling for:
+- API rate limiting
+- Network errors
+- Invalid responses
+- Search errors
 
 ## Contributing
 
