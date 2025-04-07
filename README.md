@@ -22,6 +22,7 @@ A responsive web application that displays stocks listed in the Nasdaq exchange.
 - **HTTP Client**: Axios
 - **Styling**: Emotion
 - **Build Tool**: Vite
+- **Testing**: Jest, React Testing Library
 
 ## Prerequisites
 
@@ -60,17 +61,74 @@ The application will be available at `http://localhost:5173`
 - `yarn build` - Build for production
 - `yarn preview` - Preview production build
 - `yarn lint` - Run ESLint
+- `yarn test` - Run Jest tests
 
 ## Project Structure
 
 ```
 src/
 ├── app/           # Redux store and slices
+│   ├── api/       # API services and base query setup
+│   │   ├── __mocks__/        # API mocks
+│   │   ├── __tests__/        # API tests
+│   │   └── services/
+│   │       ├── __mocks__/    # Service mocks
+│   │       └── __tests__/    # Service tests
+│   └── slices/
+│       └── __tests__/        # Redux slice tests
 ├── assets/        # Static assets
 ├── components/    # Reusable components
+├── __mocks__/     # Global mocks for testing
+├── __tests__/     # Global tests
+├── setupTests.ts  # Test setup configuration
 ├── App.tsx        # Main application component
 ├── main.tsx       # Application entry point
 └── index.css      # Global styles
+```
+
+## Testing
+
+The application includes a comprehensive testing infrastructure:
+
+### Testing Stack
+- **Jest**: Test runner and assertion library
+- **React Testing Library**: For testing React components
+- **Redux Mock Store**: For testing Redux actions and reducers
+- **Mock Service Worker (MSW)**: For mocking API requests
+
+### Test Types
+- **Unit Tests**: Testing individual components and functions
+- **Integration Tests**: Testing interactions between components
+- **Redux Tests**: Testing Redux slices, actions, and reducers
+- **API Tests**: Testing API services and requests
+
+### Running Tests
+```bash
+# Run all tests
+yarn test
+
+# Run tests in watch mode
+yarn test --watch
+
+# Run tests with coverage report
+yarn test --coverage
+```
+
+### Test File Organization
+Tests are organized alongside the code they test:
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── __mocks__/        # API mocks
+│   │   ├── __tests__/        # API tests
+│   │   └── services/
+│   │       ├── __mocks__/    # Service mocks
+│   │       └── __tests__/    # Service tests
+│   └── slices/
+│       └── __tests__/        # Redux slice tests
+└── components/
+    └── __tests__/            # Component tests
 ```
 
 ## API Integration
